@@ -8,9 +8,8 @@ import java.util.ArrayList;
  */
 public class InMemoryMediaReviewRepository implements MediaReviewRepository {
 
-    // protected so the Persistant subclass can load file data into the same list
-    protected ArrayList<MediaReview> reviews;
-    protected int nextId;
+    private ArrayList<MediaReview> reviews;
+    private int nextId;
 
     public InMemoryMediaReviewRepository() {
         reviews = new ArrayList<MediaReview>();

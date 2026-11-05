@@ -72,11 +72,9 @@ public class PersistantMediaReviewRepository extends InMemoryMediaReviewReposito
 
                     MediaReview review = new MediaReview(id, decode(parts[1]), score,
                             decode(parts[3]), decode(parts[4]), decode(parts[5]), favorite);
-                    reviews.add(review);
-
-                    if (id >= nextId) {
-                        nextId = id + 1;
-                    }
+                    // Add it using the parent's save() (it already has an ID, so it just gets added).
+                    // super.save() is used so the file is not rewritten while we are still reading it.
+                    super.save(review);
                 } catch (IllegalArgumentException e) {
                     // covers NumberFormatException and an out-of-range score
                     System.out.println("Skipping bad line in file: " + line);
@@ -96,7 +94,7 @@ public class PersistantMediaReviewRepository extends InMemoryMediaReviewReposito
         PrintWriter output = null;
         try {
             output = new PrintWriter(new FileWriter(filePath));
-            for (MediaReview review : reviews) {
+            for (MediaReview review : findAll()) {
                 output.println(review.getId() + DELIMITER
                         + encode(review.getTitle()) + DELIMITER
                         + review.getScore() + DELIMITER
