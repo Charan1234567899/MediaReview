@@ -1,4 +1,4 @@
-package MediaReview.Model;
+package MediaReview.model;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,6 +11,9 @@ import java.util.Scanner;
  * Works exactly like InMemoryMediaReviewRepository (it inherits findAll and findById),
  * but every save or delete is also written to a text file, so reviews are still
  * there the next time the app is opened.
+ *
+ * If the file can't be read or written, a RepositoryException is thrown
+ * so the Controller (or Main) can tell the user what went wrong.
  *
  * File format - one review per line, fields separated by "|":
  *   id|title|score|director|genre|notes|favorite
@@ -43,26 +46,31 @@ public class PersistantMediaReviewRepository extends InMemoryMediaReviewReposito
         saveToFile();
     }
 
-    // Reads every line of the file and rebuilds the MediaReview objects
+    // Reads every line of the file and rebuilds the MediaReview objects.
+    // Missing file -> first run, so create an empty one.
+    // Damaged line or unreadable file -> throw RepositoryException so the user is told.
     private void loadFromFile() {
         File file = new File(filePath);
         if (!file.exists()) {
-            return; // first run - nothing saved yet
+            saveToFile(); // first run - create the empty file and carry on with an empty list
+            return;
         }
 
         Scanner input = null;
         try {
             input = new Scanner(file);
+            int lineNumber = 0;
             while (input.hasNextLine()) {
                 String line = input.nextLine();
+                lineNumber++;
                 if (line.trim().isEmpty()) {
-                    continue;
+                    continue; // blank lines are fine, just skip them
                 }
 
                 String[] parts = line.split("\\|", -1);
                 if (parts.length != 7) {
-                    System.out.println("Skipping bad line in file: " + line);
-                    continue;
+                    throw new RepositoryException("Line " + lineNumber + " of " + filePath
+                            + " is damaged (wrong number of fields).");
                 }
 
                 try {
@@ -72,16 +80,18 @@ public class PersistantMediaReviewRepository extends InMemoryMediaReviewReposito
 
                     MediaReview review = new MediaReview(id, decode(parts[1]), score,
                             decode(parts[3]), decode(parts[4]), decode(parts[5]), favorite);
+
                     // Add it using the parent's save() (it already has an ID, so it just gets added).
                     // super.save() is used so the file is not rewritten while we are still reading it.
                     super.save(review);
                 } catch (IllegalArgumentException e) {
                     // covers NumberFormatException and an out-of-range score
-                    System.out.println("Skipping bad line in file: " + line);
+                    throw new RepositoryException("Line " + lineNumber + " of " + filePath
+                            + " is damaged (" + e.getMessage() + ").");
                 }
             }
         } catch (FileNotFoundException e) {
-            System.out.println("Could not open " + filePath + ": " + e.getMessage());
+            throw new RepositoryException("Could not open the save file " + filePath + ".");
         } finally {
             if (input != null) {
                 input.close();
@@ -104,7 +114,7 @@ public class PersistantMediaReviewRepository extends InMemoryMediaReviewReposito
                         + review.isFavorite());
             }
         } catch (IOException e) {
-            System.out.println("Error saving reviews to " + filePath + ": " + e.getMessage());
+            throw new RepositoryException("Could not save your reviews to " + filePath + ".");
         } finally {
             if (output != null) {
                 output.close();

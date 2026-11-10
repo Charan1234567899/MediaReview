@@ -1,9 +1,9 @@
-package MediaReview.Controller;
+package MediaReview.controller;
 
-import MediaReview.Model.MediaReview;
-import MediaReview.Model.MediaReviewRepository;
-import MediaReview.View.MediaReviewView;
-import java.util.ArrayList;
+import MediaReview.model.MediaReview;
+import MediaReview.model.MediaReviewRepository;
+import MediaReview.model.RepositoryException;
+import MediaReview.view.MediaReviewView;
 
 /**
  * The "middleman" between the window (View) and the data (Model).
@@ -15,7 +15,7 @@ public class MediaReviewController {
 
     private MediaReviewRepository repository; // interface type -> polymorphism
     private MediaReviewView view;
-    private int selectedId; // ID of the review loaded in the form (0 = none)
+    private int selectedId; // ID of the review picked in the table (0 = nothing selected)
 
     public MediaReviewController(MediaReviewRepository repository, MediaReviewView view) {
         this.repository = repository;
@@ -28,44 +28,33 @@ public class MediaReviewController {
         String title = view.getTitleInput();
         if (title.isEmpty()) {
             view.showError("Please enter a Media Title.");
-            return;
+            return; // the user's other input stays in the boxes
         }
 
         try {
-            // ID 0 tells the repository this is a brand-new record
+            // ID 0 tells the repository this is a brand-new record; it picks the real ID
             MediaReview review = new MediaReview(0, title, view.getScoreInput(),
                     view.getDirectorInput(), view.getGenreInput(),
                     view.getNotesInput(), view.getFavoriteInput());
 
-            MediaReview saved = repository.save(review); // assigns the real ID and writes the file
-            view.showMessage("Saved \"" + title + "\" as review #" + saved.getId() + ".");
+            MediaReview saved = repository.save(review);
             clearForm();
             refreshTable();
+            view.setStatus("Saved \"" + title + "\" as review #" + saved.getId() + ".");
         } catch (IllegalArgumentException e) {
-            view.showError(e.getMessage());
+            view.showError(e.getMessage()); // e.g. a score outside 0 - 5
+        } catch (RepositoryException e) {
+            view.showError(e.getMessage() + "\nYour review may not have been saved.");
         }
     }
 
     // ---------- Update Entry ----------
     public void updateReview() {
-        // Step 1: if no review is loaded, ask for an ID and load it into the boxes
         if (selectedId == 0) {
-            int id = askForId("Enter the ID of the review to update:");
-            if (id == -1) {
-                return;
-            }
-            MediaReview found = repository.findById(id);
-            if (found == null) {
-                view.showError("No review found with ID " + id + ".");
-                return;
-            }
-            reviewSelected(found);
-            view.showMessage("Review #" + id + " is loaded.\n"
-                    + "Make your changes, then click Update Entry again.");
+            view.showError("Nothing selected. Click View Table, then click the review you want to update.");
             return;
         }
 
-        // Step 2: a review is loaded, so save the changes to it
         MediaReview review = repository.findById(selectedId);
         if (review == null) {
             view.showError("That review no longer exists.");
@@ -93,35 +82,43 @@ public class MediaReviewController {
             }
 
             repository.save(review);
-            view.showMessage("Review #" + review.getId() + " updated.");
+            int id = review.getId();
             clearForm();
             refreshTable();
+            view.setStatus("Review #" + id + " updated.");
         } catch (IllegalArgumentException e) {
             view.showError(e.getMessage());
+        } catch (RepositoryException e) {
+            view.showError(e.getMessage() + "\nYour changes may not have been saved.");
         }
     }
 
     // ---------- Delete ----------
     public void deleteReview() {
-        int id = selectedId;
-        if (id == 0) {
-            id = askForId("Enter the ID of the review to delete:");
-            if (id == -1) {
-                return;
-            }
-        }
-
-        MediaReview review = repository.findById(id);
-        if (review == null) {
-            view.showError("No review found with ID " + id + ".");
+        if (selectedId == 0) {
+            view.showError("Nothing selected. Click View Table, then click the review you want to delete.");
             return;
         }
 
-        if (view.confirm("Delete review #" + id + " (" + review.getTitle() + ")?")) {
-            repository.deleteById(id);
+        MediaReview review = repository.findById(selectedId);
+        if (review == null) {
+            view.showError("That review no longer exists.");
             clearForm();
-            refreshTable();
-            view.showMessage("Review #" + id + " deleted.");
+            return;
+        }
+
+        int id = selectedId;
+        if (view.confirm("Delete review #" + id + " (" + review.getTitle() + ")?")) {
+            try {
+                repository.deleteById(id);
+                clearForm();
+                refreshTable();
+                view.setStatus("Review #" + id + " deleted.");
+            } catch (RepositoryException e) {
+                view.showError(e.getMessage() + "\nThe delete may not have been saved.");
+            }
+        } else {
+            view.setStatus("Delete cancelled.");
         }
     }
 
@@ -131,38 +128,29 @@ public class MediaReviewController {
     }
 
     // ---------- Clear ----------
+    // Empties the form and deselects, without changing any stored data
     public void clearForm() {
         selectedId = 0;
         view.clearForm();
+        view.setStatus("Form cleared.");
     }
 
-    // Called when the user clicks a row in the table (or loads a review by ID)
+    // Called when the user clicks a row in the table
     public void reviewSelected(MediaReview review) {
         selectedId = review.getId();
         view.fillForm(review);
+        view.setStatus("Review #" + selectedId + " selected. Edit it and click Update Entry, or click Delete.");
+    }
+
+    // Called once by Main when the window first opens
+    public void start() {
+        refreshTable();
+        int count = repository.findAll().size();
+        view.setStatus("Ready. " + count + " review(s) loaded.");
     }
 
     // ---------- Helpers ----------
     private void refreshTable() {
         view.refreshTable(repository.findAll());
-    }
-
-    // Asks for an ID and validates it. Returns -1 if cancelled or invalid.
-    private int askForId(String message) {
-        String input = view.askForInput(message);
-        if (input == null) {
-            return -1; // Cancel was clicked
-        }
-        try {
-            int id = Integer.parseInt(input.trim());
-            if (id <= 0) {
-                view.showError("The ID must be a positive whole number.");
-                return -1;
-            }
-            return id;
-        } catch (NumberFormatException e) {
-            view.showError("\"" + input + "\" is not a valid ID number.");
-            return -1;
-        }
     }
 }

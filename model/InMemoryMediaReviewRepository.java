@@ -1,4 +1,4 @@
-package MediaReview.Model;
+package MediaReview.model;
 
 import java.util.ArrayList;
 

@@ -1,4 +1,4 @@
-package MediaReview.Model;
+package MediaReview.model;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -85,7 +85,9 @@ public class MediaReview {
         favorite = newFav;
     }
 
-    // Used by the repository to give a brand-new review (ID 0) its real ID
+    // A new review starts with ID 0 (meaning "no ID yet").
+    // When it is saved, the repository class (InMemoryMediaReviewRepository)
+    // calls this method to give it its real ID number: 1, 2, 3, and so on.
     public void setId(int newId) {
         id = newId;
     }

@@ -1,6 +1,6 @@
-package MediaReview.View;
+package MediaReview.view;
 
-import MediaReview.Model.MediaReview;
+import MediaReview.model.MediaReview;
 import java.util.ArrayList;
 import javax.swing.table.AbstractTableModel;
 

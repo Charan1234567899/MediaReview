@@ -1,12 +1,11 @@
-package MediaReview.View;
+package MediaReview.view;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import MediaReview.Controller.MediaReviewController;
-import MediaReview.Model.MediaReview;
-import MediaReview.Model.PersistantMediaReviewRepository;
+import MediaReview.controller.MediaReviewController;
+import MediaReview.model.MediaReview;
 
 /**
  *
@@ -19,11 +18,26 @@ public class MediaReviewView extends javax.swing.JFrame {
      */
     public MediaReviewView() {
         initComponents();
-        // The controller gets the repository (loads saved reviews from the file) and this window
-        controller = new MediaReviewController(new PersistantMediaReviewRepository("MediaReviews.txt"), this);
+
+        // Status area at the bottom of the window. The form built by initComponents()
+        // goes in the CENTER of a new panel and the status label goes underneath it.
+        statusLabel = new JLabel(" Ready.");
+        statusLabel.setBorder(BorderFactory.createEmptyBorder(4, 8, 6, 8));
+        JPanel formPanel = (JPanel) getContentPane();
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(formPanel, BorderLayout.CENTER);
+        mainPanel.add(statusLabel, BorderLayout.SOUTH);
+        setContentPane(mainPanel);
+        pack();
+
         setTitle("Media Reviewer Log");
         Notes_TextBox.setToolTipText("When updating, anything typed here is added to the existing notes.");
         setLocationRelativeTo(null);
+    }
+
+    // Main creates the controller and hands it to the window
+    public void setController(MediaReviewController controller) {
+        this.controller = controller;
     }
 
     /**
@@ -366,23 +380,21 @@ public class MediaReviewView extends javax.swing.JFrame {
         Rating_DropDown.setSelectedIndex(index);
     }
 
-    // ----- Pop-up messages -----
-    public void showMessage(String message) {
-        JOptionPane.showMessageDialog(this, message);
+    // ----- Status area and pop-up messages -----
+
+    // Shows what just happened in the status label at the bottom of the window
+    public void setStatus(String message) {
+        statusLabel.setText(" " + message);
     }
 
     public void showError(String message) {
+        setStatus(message.replace("\n", " "));
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
     public boolean confirm(String message) {
         int choice = JOptionPane.showConfirmDialog(this, message, "Confirm", JOptionPane.YES_NO_OPTION);
         return choice == JOptionPane.YES_OPTION;
-    }
-
-    // Returns what the user typed, or null if they clicked Cancel
-    public String askForInput(String message) {
-        return JOptionPane.showInputDialog(this, message);
     }
 
     // ----- Table window -----
@@ -401,7 +413,7 @@ public class MediaReviewView extends javax.swing.JFrame {
             return;
         }
         tableModel.setReviews(reviews);
-        statusLabel.setText(" Status: Ready. " + reviews.size() + " item(s) loaded.");
+        countLabel.setText(" " + reviews.size() + " review(s).");
     }
 
     // Separate window with a JTable that lists every review
@@ -424,51 +436,16 @@ public class MediaReviewView extends javax.swing.JFrame {
             }
         });
 
-        statusLabel = new JLabel(" ");
+        countLabel = new JLabel(" ");
 
         tableFrame = new JFrame("All Reviews");
         tableFrame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
         tableFrame.setLayout(new BorderLayout());
         tableFrame.add(new JLabel(" Click a row to load it for Update or Delete."), BorderLayout.NORTH);
         tableFrame.add(new JScrollPane(reviewTable), BorderLayout.CENTER);
-        tableFrame.add(statusLabel, BorderLayout.SOUTH);
+        tableFrame.add(countLabel, BorderLayout.SOUTH);
         tableFrame.setSize(800, 300);
         tableFrame.setLocationRelativeTo(this);
-    }
-
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String args[]) {
-        /* Set the Nimbus look and feel */
-        //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-        /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-         */
-        try {
-            for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
-                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
-                    break;
-                }
-            }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(MediaReviewView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(MediaReviewView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(MediaReviewView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(MediaReviewView.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
-
-        /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new MediaReviewView().setVisible(true);
-            }
-        });
     }
 
     // Back-end fields
@@ -476,7 +453,8 @@ public class MediaReviewView extends javax.swing.JFrame {
     private JFrame tableFrame;
     private JTable reviewTable;
     private MediaReviewTableModel tableModel;
-    private JLabel statusLabel;
+    private JLabel statusLabel; // status area in the main window
+    private JLabel countLabel;  // review count in the table window
 
     // Variables declaration - do not modify
     private javax.swing.JButton Clear_Button;
