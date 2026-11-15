@@ -5,6 +5,9 @@ import java.util.ArrayList;
 /**
  * Stores reviews in an ArrayList while the app is open.
  * Nothing is saved to disk here - PersistantMediaReviewRepository adds that part.
+ * This is the primary class for the future GUI. The PersistantMediaReviewRepository class
+ * will copy the information within the ArrayList of the InMemoryMediaReviewrepository.
+ * Both classes have the methods that are in the MediaReviewRepository Interface.
  */
 public class InMemoryMediaReviewRepository implements MediaReviewRepository {
 
