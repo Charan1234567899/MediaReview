@@ -18,6 +18,7 @@ public class InMemoryMediaReviewRepository implements MediaReviewRepository {
         /*Unit 9: Static, the static variables ensures that the nextId is associated with the class
         which prevents multiple objects from having the same ID number. */ 
         reviews = new ArrayList<MediaReview>();
+        this.id = nextId;
         InMemoryMediaReviewRepository.nextId +=1;
     }
 
