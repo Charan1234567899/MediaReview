@@ -1,5 +1,16 @@
 package MediaReview.model;
-
+/**
+* The entity: one MediaReview object = one record (one future table
+row).
+*
+* Fields follow Unit 13 (13.4): id, title, score (numeric score out of 5), director,
+genre, notes(small space to write personal opinions), and favorite (boolean choice).
+* 
+* Unit 6 - encapsulation: every field is private, reached through
+accessors,
+* and the setters reject bad values, so an invalid MediaReview can never
+exist.
+*/
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
