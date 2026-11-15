@@ -12,16 +12,18 @@ import java.util.ArrayList;
 public class InMemoryMediaReviewRepository implements MediaReviewRepository {
 
     private ArrayList<MediaReview> reviews;
-    private int nextId;
+    private static int nextId;
 
     public InMemoryMediaReviewRepository() {
+        /*Unit 9: Static, the static variables ensures that the nextId is associated with the class
+        which prevents multiple objects from having the same ID number. */ 
         reviews = new ArrayList<MediaReview>();
-        nextId = 1;
+        InMemoryMediaReviewRepository.nextId +=1;
     }
 
     @Override
     public ArrayList<MediaReview> findAll() {
-        // Return a copy so other classes can't change our list directly (encapsulation)
+        // Return a copy so other classes can't change our list directly Unit 6 (encapsulation)
         return new ArrayList<MediaReview>(reviews);
     }
 
