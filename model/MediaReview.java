@@ -93,6 +93,9 @@ public class MediaReview {
     }
 
     public void setFavorite(boolean newFav){
+        if (newFav =! true and newFav =! false) {
+            throw new IllegalArgumentException("Value must be true or false");
+        }
         favorite = newFav;
     }
 
