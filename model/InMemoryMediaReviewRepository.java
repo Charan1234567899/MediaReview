@@ -12,7 +12,7 @@ import java.util.ArrayList;
 public class InMemoryMediaReviewRepository implements MediaReviewRepository {
 
     private ArrayList<MediaReview> reviews;
-    private static int nextId;
+    private static int nextId = 0;
 
     public InMemoryMediaReviewRepository() {
         /*Unit 9: Static, the static variables ensures that the nextId is associated with the class
