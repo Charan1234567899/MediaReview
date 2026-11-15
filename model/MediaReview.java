@@ -36,6 +36,16 @@ public class MediaReview {
         this.notes = notes;
         this.favorite = favorite;
     }
+    //Unit 7: Overloading (This ensures that adding a note is optional)
+        public MediaReview(int id, String title, double score, String director, String genre, boolean favorite) {
+        this.id = id;
+        this.title = title;
+        setScore(score); // uses the setter so the score is checked
+        this.director = director;
+        this.genre = genre;
+        notes = "No Note Entry";
+        this.favorite = favorite;
+    }
 
     //Creation of all main getters
 
