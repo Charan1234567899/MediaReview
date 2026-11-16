@@ -7,6 +7,7 @@ import javax.swing.table.AbstractTableModel;
 /**
  * Tells the JTable how to show the list of reviews:
  * how many rows/columns there are and what goes in each cell.
+ * @author Charan Kristem
  */
 public class MediaReviewTableModel extends AbstractTableModel {
 

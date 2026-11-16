@@ -8,18 +8,18 @@ import java.util.ArrayList;
  * This is the primary class for the future GUI. The PersistantMediaReviewRepository class
  * will copy the information within the ArrayList of the InMemoryMediaReviewrepository.
  * Both classes have the methods that are in the MediaReviewRepository Interface.
+ *
+ * @author Ethan Porter
  */
 public class InMemoryMediaReviewRepository implements MediaReviewRepository {
 
     private ArrayList<MediaReview> reviews;
-    private static int nextId = 0;
+    private static int nextId = 1;
 
     public InMemoryMediaReviewRepository() {
         /*Unit 9: Static, the static variables ensures that the nextId is associated with the class
-        which prevents multiple objects from having the same ID number. */ 
+        which prevents multiple objects from having the same ID number. */
         reviews = new ArrayList<MediaReview>();
-        this.id = nextId;
-        InMemoryMediaReviewRepository.nextId +=1;
     }
 
     @Override
@@ -54,12 +54,19 @@ public class InMemoryMediaReviewRepository implements MediaReviewRepository {
                     return review;
                 }
             }
-            // ID was not in the list yet, so add it and keep nextId ahead of it
-            reviews.add(review);
-            if (review.getId() >= nextId) {
-                nextId = review.getId() + 1;
-            }
-            return review;
+            // No review has this ID, so there is nothing to update.
+            // Reject it instead of adding it, so bad input never changes what is stored.
+            throw new IllegalArgumentException("No review with ID " + review.getId() + " to update.");
+        }
+    }
+
+    // Used only by PersistantMediaReviewRepository when it loads reviews from the file.
+    // No access modifier = package-private: only classes in the model package can call it.
+    // It adds a review that already has an ID and keeps nextId ahead of it.
+    void addLoadedReview(MediaReview review) {
+        reviews.add(review);
+        if (review.getId() >= nextId) {
+            nextId = review.getId() + 1;
         }
     }
 

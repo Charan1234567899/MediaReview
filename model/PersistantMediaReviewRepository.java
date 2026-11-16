@@ -17,6 +17,7 @@ import java.util.Scanner;
  *
  * File format - one review per line, fields separated by "|":
  *   id|title|score|director|genre|notes|favorite
+ * @author Charan Krisem
  */
 public class PersistantMediaReviewRepository extends InMemoryMediaReviewRepository {
 
@@ -81,9 +82,9 @@ public class PersistantMediaReviewRepository extends InMemoryMediaReviewReposito
                     MediaReview review = new MediaReview(id, decode(parts[1]), score,
                             decode(parts[3]), decode(parts[4]), decode(parts[5]), favorite);
 
-                    // Add it using the parent's save() (it already has an ID, so it just gets added).
-                    // super.save() is used so the file is not rewritten while we are still reading it.
-                    super.save(review);
+                    // Add it with the ID it already has (and without rewriting the file
+                    // while we are still reading it)
+                    addLoadedReview(review);
                 } catch (IllegalArgumentException e) {
                     // covers NumberFormatException and an out-of-range score
                     throw new RepositoryException("Line " + lineNumber + " of " + filePath

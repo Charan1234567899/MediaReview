@@ -10,6 +10,8 @@ genre, notes(small space to write personal opinions), and favorite (boolean choi
 accessors,
 * and the setters reject bad values, so an invalid MediaReview can never
 exist.
+*
+* @author Ethan Porter
 */
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -29,7 +31,7 @@ public class MediaReview {
     //Main Media Review Constructor
     public MediaReview(int id, String title, double score, String director, String genre, String notes, boolean favorite) {
         this.id = id;
-        this.title = title;
+        setTitle(title); // uses the setter so an empty title is rejected
         setScore(score); // uses the setter so the score is checked
         this.director = director;
         this.genre = genre;
@@ -39,7 +41,7 @@ public class MediaReview {
     //Unit 7: Overloading (This ensures that adding a note is optional)
         public MediaReview(int id, String title, double score, String director, String genre, boolean favorite) {
         this.id = id;
-        this.title = title;
+        setTitle(title); // uses the setter so an empty title is rejected
         setScore(score); // uses the setter so the score is checked
         this.director = director;
         this.genre = genre;
@@ -87,7 +89,10 @@ public class MediaReview {
     }
 
     public void setTitle(String newTitle) {
-        title = newTitle;
+        if (newTitle == null || newTitle.trim().isEmpty()) {
+            throw new IllegalArgumentException("Title cannot be empty.");
+        }
+        title = newTitle.trim();
     }
 
     public void setDirector(String newDirector) {
@@ -102,10 +107,8 @@ public class MediaReview {
         notes += ("\nUpdated Notes @ " + new SimpleDateFormat("dd-MM-yyyy HH:mm").format(new Date()) + "\n" + newNotes);
     }
 
+    // A boolean can only ever be true or false, so there is nothing to reject here
     public void setFavorite(boolean newFav){
-        if (newFav =! true and newFav =! false) {
-            throw new IllegalArgumentException("Value must be true or false");
-        }
         favorite = newFav;
     }
 

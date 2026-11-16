@@ -11,10 +11,12 @@ import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 /**
- * Starts the Media Reviewer Log.
- * Main is the only place that picks which repository is used.
+ * Starts the Media Reviewer Log window (the GUI).
+ * For Milestone 2, Main.java is the console test, so the GUI starter lives here.
+ * In Milestone 3 this code moves back into Main.java and this file is removed.
+ * This is the only place that picks which repository the GUI uses.
  */
-public class Main {
+public class GuiMain {
 
     public static void main(String[] args) {
         // All Swing work happens on the Event Dispatch Thread

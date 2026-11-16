@@ -9,7 +9,7 @@ import MediaReview.model.MediaReview;
 
 /**
  *
- * @author porte
+ * @author Ethan Porter
  */
 public class MediaReviewView extends javax.swing.JFrame {
 

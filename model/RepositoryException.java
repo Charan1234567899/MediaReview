@@ -5,6 +5,7 @@ package MediaReview.model;
  * It extends RuntimeException, so the interface methods don't need "throws",
  * and the in-memory repository (which never touches a file) is not affected.
  * The Controller and Main catch it and tell the user in plain words.
+ * @author Charan Kristem
  */
 public class RepositoryException extends RuntimeException {
 

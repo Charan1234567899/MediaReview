@@ -10,6 +10,7 @@ import MediaReview.view.MediaReviewView;
  * When a button is clicked, the View calls a method here. The Controller
  * reads what the user typed, checks it, tells the repository what to do,
  * and then tells the View to refresh.
+ * @author Charan Kristem
  */
 public class MediaReviewController {
 
